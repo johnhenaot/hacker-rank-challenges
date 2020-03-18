@@ -2,6 +2,9 @@ package jumping
 
 import java.util.*
 
+val INITIAL_PATH_SKIPPING_SECOND_CLOUD = listOf(0, 0, 1)
+val INITIAL_PATH_TO_SECOND_CLOUD = listOf(0, 1)
+
 fun main() {
     val scan = Scanner(System.`in`)
 
@@ -17,7 +20,6 @@ fun jumpingOnClouds(c: Array<Int>): Int =
         c.solveTrivialCase()
     else
         c.solveNonTrivialCase()
-
 
 fun Array<Int>.isATrivialCaseArray(): Boolean =
     size <= 4
@@ -38,17 +40,36 @@ fun Array<Int>.getListOfPositionsOfAllowedClouds(): List<Int> =
         elementAt(it) == 0
     }
 
-//TODO Refactor to functional programming: recursion
 fun List<Int>.getMinimumLeapAmount(): Int =
-    let {
-        var counter = 0
-        var pos = 0
-        while (pos <= it.size - 3) {
-            pos += if (it.elementAt(pos + 2) - it.elementAt(pos) <= 2) 2 else 1
-            counter += 1
-        }
-        if (pos + 1 == it.size)
-            counter
-        else
-            counter + 1
+    findTheOptimalPath().sum()
+
+fun List<Int>.findTheOptimalPath(): List<Int> =
+    if (canSkipSecondCloud())
+        moveToNextOptimalCloud(INITIAL_PATH_SKIPPING_SECOND_CLOUD)
+    else
+        moveToNextOptimalCloud(INITIAL_PATH_TO_SECOND_CLOUD)
+
+fun List<Int>.canSkipSecondCloud() = elementAt(2) == 2
+
+fun List<Int>.moveToNextOptimalCloud(currentPath: List<Int>): List<Int> =
+    when (getMissingClouds(currentPath)) {
+        0 -> currentPath
+        1 -> currentPath.goToNextCloud()
+        else -> moveToNextOptimalCloud(findNextOptimalCloud(currentPath))
     }
+
+fun List<Int>.findNextOptimalCloud(currentPath: List<Int>): List<Int> {
+    return if (canSkipNextCloud(currentPath))
+        currentPath.skipNextCloud()
+    else currentPath.goToNextCloud()
+}
+
+fun List<Int>.canSkipNextCloud(currentPath: List<Int>) =
+    elementAt(currentPath.lastIndex + 2) - elementAt(currentPath.lastIndex) == 2
+
+fun List<Int>.skipNextCloud() = plus(listOf(0, 1))
+
+fun List<Int>.goToNextCloud() = plus(1)
+
+fun List<Int>.getMissingClouds(currentPath: List<Int>) =
+    size - currentPath.size

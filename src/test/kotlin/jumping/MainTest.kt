@@ -111,8 +111,61 @@ class MainTest : WordSpec() {
         "getMinimumLeapAmount" should {
             "getMinimumLeapAmount: should work properly" {
                 val receivedList = listOf(0, 1, 3, 4, 6)
+                val optimalPath = listOf(0, 1, 1, 1, 1)
+                every { receivedList.findTheOptimalPath() } returns optimalPath
 
-                receivedList.getMinimumLeapAmount() shouldBe 4
+                receivedList.getMinimumLeapAmount()
+
+                verify {
+                    receivedList.findTheOptimalPath()
+                    optimalPath.sum()
+                }
+            }
+        }
+
+        "findTheOptimalPath" should {
+            "findTheOptimalPath: should skip second cloud" {
+                val receivedList = listOf(0, 1, 2, 4, 6)
+                val optimalPath = listOf(0, 1, 1, 1, 1)
+                every { receivedList.moveToNextOptimalCloud(any()) } returns optimalPath
+
+                receivedList.findTheOptimalPath()
+
+                verify {
+                    receivedList.moveToNextOptimalCloud(listOf(0, 0, 1))
+                }
+            }
+
+            "findTheOptimalPath: should go to second cloud" {
+                val receivedList = listOf(0, 1, 3, 4, 6)
+                val optimalPath = listOf(0, 1, 1, 1, 1)
+                every { receivedList.moveToNextOptimalCloud(any()) } returns optimalPath
+
+                receivedList.findTheOptimalPath()
+
+                verify {
+                    receivedList.moveToNextOptimalCloud(listOf(0, 1))
+                }
+            }
+        }
+
+        "moveToNextOptimalCloud" should {
+            "moveToNextOptimalCloud: should finish" {
+                val receivedList = listOf(0, 1, 3, 4, 6)
+                val currentPath = listOf(0, 1, 1, 1)
+
+                val result = receivedList.moveToNextOptimalCloud(currentPath)
+
+                result shouldBe listOf(0, 1, 1, 1, 1)
+            }
+
+            "moveToNextOptimalCloud: should run properly" {
+                val receivedList = listOf(0, 1, 3, 4, 6)
+                val currentPath = listOf(0, 1)
+
+                val result = receivedList.moveToNextOptimalCloud(currentPath)
+
+                result shouldBe listOf(0, 1, 1, 1, 1)
             }
         }
     }
