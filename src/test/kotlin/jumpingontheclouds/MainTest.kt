@@ -1,4 +1,4 @@
-package jumping
+package jumpingontheclouds
 
 import io.kotlintest.Spec
 import io.kotlintest.TestCase
